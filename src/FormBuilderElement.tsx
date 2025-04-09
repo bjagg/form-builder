@@ -1,94 +1,195 @@
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
-import FormBuilder from './FormBuilder';
+import FormBuilder from './FormBuilder/FormBuilder';
+
+type ShowErrorListOptions = false | 'top' | 'bottom';
 
 class FormBuilderElement extends HTMLElement {
-    #fbmsBaseUrl = '';
+    private root: Root | null = null;
 
-    static get observedAttributes() {
-        return ['fbmsBaseUrl'];
+    // Define reactive properties
+    private _oidcUrl = '';
+    private _fbmsBaseUrl = '/fbms';
+    private _fbmsFormFname = '';
+    private _showErrorList: ShowErrorListOptions = 'top';
+    private _styles = '';
+
+    // Define property getters and setters that reflect to attributes
+    get oidcUrl() {
+        return this._oidcUrl;
     }
-
-    set fbmsBaseUrl(fbmsBaseUrl) {
-        this.#fbmsBaseUrl = fbmsBaseUrl;
+    set oidcUrl(val) {
+        this._oidcUrl = val;
+        this.setAttribute('oidc-url', val);
     }
 
     get fbmsBaseUrl() {
-        return this.#fbmsBaseUrl;
+        return this._fbmsBaseUrl;
+    }
+    set fbmsBaseUrl(val) {
+        this._fbmsBaseUrl = val;
+        this.setAttribute('fbms-base-url', val);
     }
 
-    private root: Root | null = null;
-    // private container: HTMLElement | null = null;
-
-    // constructor() {
-    //     super();
-    //     this.attachShadow({ mode: 'open' });
-    // }
-
-    // connectedCallback() {
-    //     // Create container div
-    //     this.container = document.createElement('div');
-    //     this.appendChild(this.container);
-
-    //     // Create and mount React root
-    //     this.root = createRoot(this.container);
-    //     this.root.render(<FormBuilder />);
-    // }
-
-    // disconnectedCallback() {
-    //     if (this.root) {
-    //         this.root.unmount();
-    //         this.root = null;
-    //     }
-    //     if (this.container) {
-    //         this.container.remove();
-    //         this.container = null;
-    //     }
-    // }
-
-    constructor() {
-        super();
-        // this.#fbmsBaseUrl = this.
-        // Attach a shadow DOM to the custom element
-        const shadow = this.attachShadow({ mode: 'open' });
-
-        // Inject the compiled CSS for the child component using the <link> tag
-        const customFormStylesLink = document.createElement('link');
-        customFormStylesLink.rel = 'stylesheet';
-        customFormStylesLink.href = '/src/CustomForm/CustomForm.module.scss'; // Vite handles bundling this file
-        shadow.appendChild(customFormStylesLink);
-
-        // Inject the compiled CSS for the child component using the <link> tag
-        const statefulSubmitButtonStylesLink = document.createElement('link');
-        statefulSubmitButtonStylesLink.rel = 'stylesheet';
-        statefulSubmitButtonStylesLink.href =
-            '/src/StatefulSubmitButton/StatefulSubmitButton.module.scss'; // Vite handles bundling this file
-        shadow.appendChild(statefulSubmitButtonStylesLink);
-
-        // Inject the compiled CSS for the grandchild component (if needed)
-        const spinnerStylesLink = document.createElement('link');
-        spinnerStylesLink.rel = 'stylesheet';
-        spinnerStylesLink.href = '/src/Spinner/Spinner.module.scss'; // Vite will bundle it
-        shadow.appendChild(spinnerStylesLink);
-
-        const bootstrapStylesLink = document.createElement('link');
-        bootstrapStylesLink.rel = 'stylesheet';
-        bootstrapStylesLink.href =
-            'https://stackpath.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css';
-
-        shadow.appendChild(bootstrapStylesLink);
+    get fbmsFormFname() {
+        return this._fbmsFormFname;
+    }
+    set fbmsFormFname(val) {
+        this._fbmsFormFname = val;
+        this.setAttribute('fbms-form-fname', val);
     }
 
-    connectedCallback() {
-        if (this.root === null) {
-            // Use ReactDOM to render the React component into the shadow root
-            this.root = createRoot(this.shadowRoot!);
-            this.root.render(<FormBuilder fbmsBaseUrl={this.#fbmsBaseUrl} />);
+    get showErrorList() {
+        return this._showErrorList;
+    }
+    set showErrorList(val) {
+        this._showErrorList = val;
+        if (val === false) {
+            this.setAttribute('show-error-list', 'false');
+        } else {
+            this.setAttribute('show-error-list', val);
         }
     }
 
+    get styles() {
+        return this._styles;
+    }
+    set styles(val) {
+        this._styles = val;
+        this.setAttribute('styles', val);
+    }
+
+    static get observedAttributes() {
+        return [
+            'oidc-url',
+            'fbms-base-url',
+            'fbms-form-fname',
+            'show-error-list',
+            'styles',
+        ];
+    }
+
+    constructor() {
+        super();
+        const shadowRoot = this.attachShadow({ mode: 'open' });
+
+        // Add necessary stylesheets
+        const stylesheets = [
+            '/src/CustomForm/CustomForm.module.scss',
+            '/src/StatefulSubmitButton/StatefulSubmitButton.module.scss',
+            '/src/Spinner/Spinner.module.scss',
+            'https://stackpath.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css',
+        ];
+
+        stylesheets.forEach((href) => {
+            const link = document.createElement('link');
+            link.rel = 'stylesheet';
+            link.href = href;
+            shadowRoot.appendChild(link);
+        });
+    }
+
+    // Handle attribute changes and update properties without infinite loops
+    attributeChangedCallback(
+        name: string,
+        oldValue: string | null,
+        newValue: string | null,
+    ) {
+        if (oldValue === newValue) return;
+        // console.log(`name: ${name} newValue: ${newValue}`);
+
+        switch (name) {
+            case 'oidc-url':
+                this._oidcUrl = newValue || '';
+                break;
+            case 'fbms-base-url':
+                this._fbmsBaseUrl = newValue || '/fbms';
+                break;
+            case 'fbms-form-fname':
+                this._fbmsFormFname = newValue || '';
+                break;
+            case 'show-error-list':
+                if (newValue === 'false') {
+                    this._showErrorList = false;
+                } else if (newValue === 'top' || newValue === 'bottom') {
+                    this._showErrorList = newValue;
+                } else {
+                    this._showErrorList = 'top';
+                }
+                break;
+            case 'styles':
+                this._styles = newValue || '';
+                break;
+        }
+
+        // console.log('name: showErrorList newValue: ', this.showErrorList);
+
+        // Only update on connection and when attributes change
+        if (this.isConnected) {
+            this.renderComponent();
+        }
+    }
+
+    // Render React component
+    private renderComponent() {
+        if (!this.shadowRoot) return;
+
+        if (this.root === null) {
+            this.root = createRoot(this.shadowRoot);
+        }
+
+        if (this._styles) {
+            const styleTag = document.createElement('style');
+            styleTag.textContent = this._styles;
+            this.shadowRoot.appendChild(styleTag);
+        }
+
+        this.root.render(
+            <FormBuilder
+                oidcUrl={this._oidcUrl}
+                fbmsBaseUrl={this._fbmsBaseUrl}
+                fbmsFormFname={this._fbmsFormFname}
+                showErrorList={this._showErrorList}
+                styles={this._styles}
+            />,
+        );
+    }
+
+    connectedCallback() {
+        // Initialize properties from attributes
+        if (this.hasAttribute('oidc-url')) {
+            this._oidcUrl = this.getAttribute('oidc-url') || '';
+        }
+
+        if (this.hasAttribute('fbms-base-url')) {
+            this._fbmsBaseUrl = this.getAttribute('fbms-base-url') || '/fbms';
+        }
+
+        if (this.hasAttribute('fbms-form-fname')) {
+            this._fbmsFormFname = this.getAttribute('fbms-form-fname') || '';
+        }
+
+        if (this.hasAttribute('show-error-list')) {
+            const showErrorListAttr = this.getAttribute('show-error-list');
+            if (showErrorListAttr === 'false') {
+                this._showErrorList = false;
+            } else if (
+                showErrorListAttr === 'top' ||
+                showErrorListAttr === 'bottom'
+            ) {
+                this._showErrorList = showErrorListAttr;
+            }
+        }
+
+        if (this.hasAttribute('styles')) {
+            this._styles = this.getAttribute('styles') || '';
+        }
+
+        // Render component
+        this.renderComponent();
+    }
+
     disconnectedCallback() {
-        // Clean up when the custom element is removed from the DOM
         if (this.root !== null) {
             this.root.unmount();
             this.root = null;
@@ -96,4 +197,7 @@ class FormBuilderElement extends HTMLElement {
     }
 }
 
-customElements.define('form-builder', FormBuilderElement);
+// Register the custom element
+if (!customElements.get('form-builder')) {
+    customElements.define('form-builder', FormBuilderElement);
+}

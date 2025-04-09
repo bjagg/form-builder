@@ -10,5 +10,14 @@ export default defineConfig({
     modules: {
       scopeBehaviour: 'local',
     }
+  },
+  build: {
+    minify: 'esbuild',
+    sourcemap: true,
+    terserOptions: {
+      compress: {
+        drop_console: false,
+      },
+    },
   }
 });

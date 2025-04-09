@@ -20,13 +20,13 @@ enum NotificationType {
 }
 
 interface SubmissionStatusProps {
-    messageHeader?: string;
+    header?: string;
     messages?: string[];
 }
 
 interface NotificationProps {
     type: NotificationType;
-    submissionStatus?: SubmissionStatusProps;
+    submissionStatus: SubmissionStatusProps;
 }
 
 const Notification = (props: NotificationProps) => {
@@ -43,7 +43,7 @@ const Notification = (props: NotificationProps) => {
                         icon="exclamation-circle"
                         style={{ width: '1em' }}
                     />{' '}
-                    {submissionStatus?.messageHeader}
+                    {submissionStatus.header}
                 </h3>
             ) : (
                 <>
@@ -51,13 +51,13 @@ const Notification = (props: NotificationProps) => {
                         icon="check-circle"
                         style={{ width: '1em' }}
                     />{' '}
-                    Your form was successfully submitted.
+                    {submissionStatus.header}
                 </>
             )}
-            {submissionStatus?.messages &&
-                submissionStatus.messages.length > 0 && (
+            {submissionStatus.messages &&
+                submissionStatus.messages?.length > 0 && (
                     <ul>
-                        {submissionStatus?.messages.map(
+                        {submissionStatus.messages.map(
                             (
                                 item:
                                     | string
@@ -72,7 +72,9 @@ const Notification = (props: NotificationProps) => {
                                     | null
                                     | undefined,
                                 index: Key | null | undefined,
-                            ) => <li key={index}>{item}</li>,
+                            ) => (
+                                <li key={index}>{item}</li>
+                            ),
                         )}
                     </ul>
                 )}

@@ -10,16 +10,11 @@ import styles from './StatefulSubmitButton.module.scss';
 
 const StatefulSubmitButton = (props: any) => {
     const { uiSchema } = props;
-    console.log('uiSchema: ', uiSchema);
     const {
         submitText,
         norender,
-        props: { disabled, className, isProcessing } = {},
+        props: { isProcessing, disabled } = {},
     }: UISchemaSubmitButtonOptions = getSubmitButtonOptions(uiSchema);
-    console.log('className: ', className);
-    console.log('submitText: ', submitText);
-    console.log('disabled: ', disabled);
-    console.log('isProcessing: ', isProcessing);
 
     if (norender) {
         return null;
@@ -30,7 +25,7 @@ const StatefulSubmitButton = (props: any) => {
     return (
         <div className={styles.SubmitButtonWithProcessingState}>
             <button type="submit" disabled={isDisabled}>
-                Submit
+                {submitText}
             </button>
             {isProcessing && (
                 <>
