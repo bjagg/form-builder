@@ -118,7 +118,7 @@ interface FormConfig {
     formVersion?: string;
     formFname: string;
     schema?: {};
-    uiSchema?: {};
+    uiSchema: {};
 }
 
 interface FormState {
@@ -181,20 +181,31 @@ const FormBuilder = ({
 
     const [formState, dispatch] = useReducer(formReducer, initialState);
     const { isLoading, success, errors } = formState;
-    const [formConfig, setFormConfig] = useState<FormConfig>({
-        formFname: fbmsFormFname,
-    });
-    const [formData, setFormData] = useState({});
-
-    useEffect(() => {
-        fetchSchema();
-    }, []);
 
     const hasValidSchema = (schema: RJSFSchema) => {
         if (schema.properties && Object.keys(schema.properties).length === 0) {
             return true;
         }
     };
+
+    const [formConfig, setFormConfig] = useState<FormConfig>({
+        formFname: fbmsFormFname,
+        uiSchema: {
+            'ui:submitButtonOptions': {
+                submitText: 'Submit',
+                norender: hasValidSchema(schema),
+                props: {
+                    isProcessing: isLoading,
+                    disabled: false,
+                },
+            },
+        },
+    });
+    const [formData, setFormData] = useState({});
+
+    useEffect(() => {
+        fetchSchema();
+    }, []);
 
     const get = (obj: RJSFSchema, path: string, defaultValue = undefined) => {
         const keys = Array.isArray(path) ? path : path.split('.');
@@ -272,7 +283,7 @@ const FormBuilder = ({
                 setFormConfig({
                     ...formConfig,
                     formVersion: fbmsFormVersion,
-                    uiSchema,
+                    uiSchema, // * * * might need to spread existing ui:submitButtonOptions to new value along with payload.metadata
                     schema,
                 });
                 fetchFormData();
@@ -436,24 +447,8 @@ const FormBuilder = ({
             return err;
         });
 
-    const uiSchema = {
-        'ui:submitButtonOptions': {
-            submitText: 'Submit',
-            norender: hasValidSchema(schema),
-            props: {
-                isProcessing: isLoading,
-                disabled: false,
-            },
-        },
-    };
-
     return (
         <>
-            {/* {styles && <style>{styles}</style>} */}
-            <link
-                rel="stylesheet"
-                href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
-            ></link>
             {errors && (
                 <Notification
                     type={NotificationType.ERROR}
@@ -468,7 +463,7 @@ const FormBuilder = ({
             )}
             <Form
                 schema={schema}
-                uiSchema={uiSchema}
+                uiSchema={formConfig.uiSchema}
                 formData={formData}
                 onChange={handleChange}
                 onSubmit={handleFormSubmit}
