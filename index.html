@@ -10,22 +10,34 @@
         <!-- <script type="module" src="/dist/FormBuilderElement.iife.js"></script> -->
         <style>
             body {
-                font-family: Arial, sans-serif;
-                max-width: 800px;
-                margin: 0 auto;
+                margin: 0;
+                padding: 0;
+                font-family: sans-serif;
+            }
+
+            #root {
                 padding: 20px;
             }
-            h1 {
-                color: #333;
+
+            .checkbox-inline,
+            .radio-inline {
+                margin-right: 1.5rem;
+            }
+
+            input[type='checkbox'],
+            input[type='radio'] {
+                margin-right: 0.5rem;
             }
         </style>
     </head>
     <body>
-        <form-builder
-            oidc-url="some-oidc-url"
-            fbms-base-url="http://localhost:8091"
-            fbms-form-fname="communication-preferences"
-            styles="form {max-width: 300px};"
-        ></form-builder>
+        <div id="root">
+            <form-builder
+                oidc-url="/uPortal/api/v5-1/userinfo"
+                fbms-base-url="http://localhost:8091"
+                fbms-form-fname="communication-preferences"
+                styles="form {max-width: 300px};"
+            ></form-builder>
+        </div>
     </body>
 </html>

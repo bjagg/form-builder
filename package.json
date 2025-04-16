@@ -23,8 +23,10 @@
     "@rjsf/validator-ajv8": "^5.23.2",
     "@uportal/open-id-connect": "^1.40.2",
     "bootstrap": "^5.3.3",
+    "browserslist": "^4.24.4",
     "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react-dom": "19.0.0",
+    "regenerator-runtime": "^0.14.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.27.0",
@@ -54,5 +56,12 @@
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
     "vite": "^5.4.18"
-  }
+  },
+  "browserslist": [
+    ">0.2%",
+    "not dead",
+    "not ie < 11",
+    "Edge",
+    "not op_mini all"
+  ]
 }
