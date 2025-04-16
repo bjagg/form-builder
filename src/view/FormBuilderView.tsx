@@ -1,16 +1,14 @@
 import React from 'react';
 import { createRoot, Root } from 'react-dom/client';
 import FormBuilder from '../FormBuilder/FormBuilder';
-import { FormBuilderProps } from '../types/shared';
+import { FormBuilderConfig } from '../types/shared';
 
-/**
- * createFormBuilderView - Creates a functional View for the FormBuilder
- * Serves as the "View" in MVC
- */
 export function createFormBuilderView(shadowRoot: ShadowRoot) {
     let root: Root | null = null;
 
-    // Set up stylesheets
+    /**
+     * Creates a <link> for each stylesheet and attaches it to the shadow root
+     */
     const setupStylesheets = () => {
         const stylesheets = [
             '/src/CustomForm/CustomForm.module.scss',
@@ -27,17 +25,15 @@ export function createFormBuilderView(shadowRoot: ShadowRoot) {
         });
     };
 
-    // Initialize stylesheets
     setupStylesheets();
 
-    // Render the component
-    const render = (props: FormBuilderProps) => {
+    const render = (props: FormBuilderConfig) => {
         if (root === null) {
             root = createRoot(shadowRoot);
         }
 
         if (props.styles) {
-            // Remove any existing style element first
+            // Remove any existing style element
             const existingStyle = shadowRoot.querySelector(
                 'style[data-custom-styles]',
             );
@@ -58,12 +54,13 @@ export function createFormBuilderView(shadowRoot: ShadowRoot) {
                 fbmsBaseUrl={props.fbmsBaseUrl}
                 fbmsFormFname={props.fbmsFormFname}
                 showErrorList={props.showErrorList}
-                styles={props.styles}
             />,
         );
     };
 
-    // Clean up resources
+    /**
+     * Cleans up resources
+     */
     const cleanup = () => {
         if (root !== null) {
             root.unmount();

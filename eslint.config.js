@@ -43,7 +43,7 @@ export default [
             'react/no-danger': 'warn',
             '@typescript-eslint/no-unused-vars': 'error',
             'max-len': ['warn', { code: 200 }],
-            'max-lines-per-function': ['error', 400],
+            'max-lines-per-function': ['error', 500],
             'no-eval': 'error',
             'no-useless-escape': 'error',
         },

@@ -2,15 +2,30 @@
 <html lang="en">
     <head>
         <meta charset="UTF-8" />
-        <link
-            rel="stylesheet"
-            href="https://stackpath.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css"
-        />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Form Builder</title>
+        <title>Form Builder Web Component Demo</title>
+        <!-- For development with Vite -->
+        <script type="module" src="/src/main.ts"></script>
+        <!-- For production build (uncomment when testing built files) -->
+        <!-- <script type="module" src="/dist/FormBuilderElement.iife.js"></script> -->
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                max-width: 800px;
+                margin: 0 auto;
+                padding: 20px;
+            }
+            h1 {
+                color: #333;
+            }
+        </style>
     </head>
     <body>
-        <div id="root"></div>
-        <script type="module" src="/src/main.tsx"></script>
+        <form-builder
+            oidc-url="some-oidc-url"
+            fbms-base-url="http://localhost:8091"
+            fbms-form-fname="communication-preferences"
+            styles="form {max-width: 300px};"
+        ></form-builder>
     </body>
 </html>

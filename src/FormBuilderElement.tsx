@@ -1,10 +1,7 @@
 import { createFormBuilderModel } from './model/FormBuilderModel';
 import { createFormBuilderView } from './view/FormBuilderView';
 import { createFormBuilderController } from './controller/FormBuilderController';
-
-/**
- * FormBuilderElement - Web Component that uses functional MVC pattern
- */
+import { FormBuilderConfig, ShowErrorListOptions } from './types/shared';
 export class FormBuilderElement extends HTMLElement {
     private model = createFormBuilderModel();
     private view;
@@ -22,11 +19,9 @@ export class FormBuilderElement extends HTMLElement {
 
     constructor() {
         super();
-
         // Create shadow DOM
         const shadow = this.attachShadow({ mode: 'open' });
-
-        // Set up MVC components using functional approach
+        // Set up MVC components
         this.view = createFormBuilderView(shadow);
         this.controller = createFormBuilderController(
             this.model,
@@ -35,7 +30,6 @@ export class FormBuilderElement extends HTMLElement {
         );
     }
 
-    // Define property getters and setters that modify the model
     get oidcUrl() {
         return this.model.getState().oidcUrl;
     }
@@ -71,8 +65,43 @@ export class FormBuilderElement extends HTMLElement {
         this.model.setState({ styles: val });
     }
 
-    // Web component lifecycle methods
     connectedCallback() {
+        const initialState: Partial<FormBuilderConfig> = {};
+
+        for (const attr of Array.from(this.attributes)) {
+            const name = attr.name;
+            const value = attr.value;
+            switch (name) {
+                case 'oidc-url':
+                    initialState.oidcUrl = value;
+                    break;
+                case 'fbms-base-url':
+                    initialState.fbmsBaseUrl = value;
+                    break;
+                case 'fbms-form-fname':
+                    initialState.fbmsFormFname = value;
+                    break;
+                case 'show-error-list': {
+                    let errorListValue: ShowErrorListOptions;
+
+                    if (value === 'false') {
+                        errorListValue = false;
+                    } else if (value === 'bottom') {
+                        errorListValue = 'bottom';
+                    } else {
+                        errorListValue = 'top';
+                    }
+
+                    initialState.showErrorList = errorListValue;
+                    break;
+                }
+                case 'styles':
+                    initialState.styles = value;
+                    break;
+            }
+        }
+
+        this.model.setState(initialState);
         this.controller.initialize();
     }
 
@@ -89,7 +118,6 @@ export class FormBuilderElement extends HTMLElement {
     }
 }
 
-// Register the custom element if not already defined
 if (!customElements.get('form-builder')) {
     customElements.define('form-builder', FormBuilderElement);
 }

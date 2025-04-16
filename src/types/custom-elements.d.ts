@@ -1,4 +1,4 @@
-type ShowErrorListOptions = false | 'top' | 'bottom';
+import { ShowErrorListOptions } from './shared';
 
 declare module 'react' {
     namespace JSX {

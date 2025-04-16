@@ -1,25 +1,25 @@
-import { FormBuilderProps } from '../types/shared';
+import { FormBuilderConfig } from '../types/shared';
 
-/**
- * createFormBuilderModel - Creates a functional Model for the FormBuilder
- * Serves as the "Model" in MVC
- */
 export function createFormBuilderModel(
-    initialState: Partial<FormBuilderProps> = {},
+    initialState: Partial<FormBuilderConfig> = {},
 ) {
-    // Initialize state with defaults
     const state = {
         oidcUrl: initialState.oidcUrl || '',
         fbmsBaseUrl: initialState.fbmsBaseUrl || '/fbms',
         fbmsFormFname: initialState.fbmsFormFname || '',
-        showErrorList: initialState.showErrorList || 'top',
+        showErrorList:
+            initialState.showErrorList !== undefined
+                ? initialState.showErrorList
+                : 'top',
         styles: initialState.styles || '',
     };
 
-    // Subscribers to model changes
     const listeners: Array<() => void> = [];
 
-    // Subscribe to model changes
+    /**
+     * Subscribes an entity to model changes
+     * @param listener An entity requesting to subscribe to model changes
+     */
     const subscribe = (listener: () => void) => {
         listeners.push(listener);
         return () => {
@@ -30,20 +30,21 @@ export function createFormBuilderModel(
         };
     };
 
-    // Notify all subscribers
+    /**
+     * Notifies all subscribers of model changes
+     */
     const notify = () => {
         listeners.forEach((listener) => listener());
     };
 
-    // Create getters and setters for each property
     const getState = () => ({ ...state });
 
-    const setState = (newState: Partial<FormBuilderProps>) => {
+    const setState = (newState: Partial<FormBuilderConfig>) => {
         let changed = false;
 
         Object.entries(newState).forEach(([key, value]) => {
-            if (state[key as keyof FormBuilderProps] !== value) {
-                state[key as keyof FormBuilderProps] = value as any;
+            if (state[key as keyof FormBuilderConfig] !== value) {
+                state[key as keyof FormBuilderConfig] = value as any;
                 changed = true;
             }
         });
@@ -53,7 +54,10 @@ export function createFormBuilderModel(
         }
     };
 
-    // Method to get all properties as an object for React props
+    /**
+     * Gets all properties as an object for React props
+     * @returns properties to serve as props for React
+     */
     const getProps = () => ({ ...state });
 
     return {

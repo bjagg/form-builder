@@ -1,56 +1,57 @@
 import { FormBuilderModel } from '../model/FormBuilderModel';
 import { FormBuilderView } from '../view/FormBuilderView';
-import { FormBuilderProps, ShowErrorListOptions } from '../types/shared';
+import { FormBuilderConfig, ShowErrorListOptions } from '../types/shared';
 
-// Rest of the file remains the same
-
-/**
- * createFormBuilderController - Creates a functional Controller for the FormBuilder
- * Serves as the "Controller" in MVC
- */
 export function createFormBuilderController(
     model: FormBuilderModel,
     view: FormBuilderView,
     element: HTMLElement,
 ) {
-    // Initialize controller
+    let skipInitialSync = true;
+
+    /**
+     * Initialize controller
+     */
     const initialize = () => {
         syncModelFromAttributes();
         updateView();
+        skipInitialSync = false;
     };
 
-    // Update view with current model state
+    /**
+     * Update view with current model state
+     */
     const updateView = () => {
         view.render(model.getProps());
     };
 
-    // Sync model properties from element attributes
+    /**
+     * Sync model properties from element attributes
+     */
     const syncModelFromAttributes = () => {
-        const newState: Partial<FormBuilderProps> = {};
+        const newState: Partial<FormBuilderConfig> = {};
 
         if (element.hasAttribute('oidc-url')) {
             newState.oidcUrl = element.getAttribute('oidc-url') || '';
         }
-
         if (element.hasAttribute('fbms-base-url')) {
             newState.fbmsBaseUrl =
                 element.getAttribute('fbms-base-url') || '/fbms';
         }
-
         if (element.hasAttribute('fbms-form-fname')) {
             newState.fbmsFormFname =
                 element.getAttribute('fbms-form-fname') || '';
         }
-
         if (element.hasAttribute('show-error-list')) {
             const value = element.getAttribute('show-error-list');
             if (value === 'false') {
                 newState.showErrorList = false;
-            } else if (value === 'top' || value === 'bottom') {
-                newState.showErrorList = value;
+            } else if (value === 'bottom') {
+                newState.showErrorList = 'bottom';
+            } else {
+                newState.showErrorList = 'top';
             }
         }
-
         if (element.hasAttribute('styles')) {
             newState.styles = element.getAttribute('styles') || '';
         }
@@ -58,74 +59,120 @@ export function createFormBuilderController(
         model.setState(newState);
     };
 
-    // Sync element attributes from model properties
-    const syncAttributesToModel = () => {
-        const state = model.getState();
+    /**
+     * Sets attribute only if it differs from current value to avoid infinite loops
+     * @param name The name of the attribute
+     * @param value The value of the attribute
+     */
+    const setAttributeSafely = (name: string, value: string) => {
+        if (element.getAttribute(name) !== value) {
+            element.setAttribute(name, value ?? '');
+        }
+    };
 
-        // Only set attribute if it differs from current value to avoid infinite loops
-        const setAttributeSafely = (name: string, value: string) => {
-            if (element.getAttribute(name) !== value) {
-                element.setAttribute(name, value);
-            }
-        };
+    let isSyncing = false;
+
+    /**
+     * Sync element attributes from the model properties
+     */
+    function syncAttributesToModel() {
+        isSyncing = true;
+        const state = model.getState();
+        if (!state.oidcUrl || !state.fbmsBaseUrl || !state.fbmsFormFname) {
+            isSyncing = false;
+            return;
+        }
 
         setAttributeSafely('oidc-url', state.oidcUrl);
         setAttributeSafely('fbms-base-url', state.fbmsBaseUrl);
         setAttributeSafely('fbms-form-fname', state.fbmsFormFname);
 
-        if ((state.showErrorList as ShowErrorListOptions) === false) {
+        // Handle the union type explicitly
+        if (state.showErrorList === false) {
             setAttributeSafely('show-error-list', 'false');
+        } else if (state.showErrorList === 'bottom') {
+            setAttributeSafely('show-error-list', 'bottom');
         } else {
-            setAttributeSafely('show-error-list', state.showErrorList);
+            setAttributeSafely('show-error-list', 'top');
         }
 
-        setAttributeSafely('styles', state.styles);
-    };
+        if (typeof state.styles === 'string' && state.styles.trim() !== '') {
+            setAttributeSafely('styles', state.styles);
+        }
 
-    // Handle attribute changes
-    const handleAttributeChange = (
+        isSyncing = false;
+    }
+
+    /**
+     * Handle attribute changes
+     * @param name The name of the attribute
+     * @param _oldValue The existing value of the attribute
+     * @param newValue The new value of the attribute
+     */
+    function handleAttributeChange(
         name: string,
-        oldValue: string | null,
+        _oldValue: string | null,
         newValue: string | null,
-    ) => {
-        if (oldValue === newValue) return;
+    ) {
+        if (isSyncing) return;
 
-        const update: Partial<FormBuilderProps> = {};
+        const value = newValue ?? '';
+        const currentState = model.getState();
 
         switch (name) {
             case 'oidc-url':
-                update.oidcUrl = newValue || '';
-                break;
-            case 'fbms-base-url':
-                update.fbmsBaseUrl = newValue || '/fbms';
-                break;
-            case 'fbms-form-fname':
-                update.fbmsFormFname = newValue || '';
-                break;
-            case 'show-error-list':
-                if (newValue === 'false') {
-                    update.showErrorList = false;
-                } else if (newValue === 'top' || newValue === 'bottom') {
-                    update.showErrorList = newValue;
-                } else {
-                    update.showErrorList = 'top';
+                if (currentState.oidcUrl !== value) {
+                    model.setState({ oidcUrl: value });
                 }
                 break;
+            case 'fbms-base-url':
+                if (currentState.fbmsBaseUrl !== value) {
+                    model.setState({ fbmsBaseUrl: value });
+                }
+                break;
+            case 'fbms-form-fname':
+                if (currentState.fbmsFormFname !== value) {
+                    model.setState({ fbmsFormFname: value });
+                }
+                break;
+            case 'show-error-list': {
+                let newErrorListValue: ShowErrorListOptions;
+
+                if (value === 'bottom') {
+                    newErrorListValue = 'bottom';
+                } else if (value === 'false') {
+                    newErrorListValue = false;
+                } else {
+                    newErrorListValue = 'top';
+                }
+
+                // Only update if value changed
+                if (currentState.showErrorList !== newErrorListValue) {
+                    model.setState({ showErrorList: newErrorListValue });
+                }
+                break;
+            }
             case 'styles':
-                update.styles = newValue || '';
+                if (currentState.styles !== value) {
+                    model.setState({ styles: value });
+                }
                 break;
         }
+    }
 
-        model.setState(update);
-    };
-
-    // Subscribe to model changes
+    /**
+     * Subscribe to model changes
+     */
     const unsubscribe = model.subscribe(() => {
         updateView();
-        syncAttributesToModel();
+        if (!skipInitialSync) {
+            syncAttributesToModel();
+        }
     });
 
-    // Clean up resources
+    /**
+     * Clean up resources
+     */
     const cleanup = () => {
         unsubscribe();
         view.cleanup();
