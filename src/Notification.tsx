@@ -17,7 +17,7 @@ const Notification = forwardRef<HTMLDivElement, NotificationProps>(
         return (
             <div
                 ref={ref}
-                className={`alert ${type === NotificationTypes.ERROR ? 'alert-danger' : 'alert-success'}`}
+                className={`notification alert ${type === NotificationTypes.ERROR ? 'alert-danger' : 'alert-success'}`}
                 style={{ scrollMarginTop: '20px' }}
                 role="alert"
             >
@@ -25,15 +25,15 @@ const Notification = forwardRef<HTMLDivElement, NotificationProps>(
                     <h3>
                         <FontAwesomeIcon
                             icon="exclamation-circle"
-                            style={{ width: '1em' }}
-                        />{' '}
+                            style={{ width: '1em', marginRight: '.5em' }}
+                        />
                         {submissionStatus.header}
                     </h3>
                 ) : (
                     <>
                         <FontAwesomeIcon
                             icon="check-circle"
-                            style={{ width: '1em' }}
+                            style={{ width: '1em', marginRight: '.5em' }}
                         />{' '}
                         {submissionStatus.header}
                     </>

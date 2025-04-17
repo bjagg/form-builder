@@ -10,7 +10,7 @@ declare module 'react' {
                 'oidc-url': string;
                 'fbms-base-url': string;
                 'fbms-form-fname': string;
-                showErrorList?: ShowErrorListOptions;
+                'show-error-list'?: ShowErrorListOptions;
                 styles: string;
             };
         }

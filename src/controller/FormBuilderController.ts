@@ -87,7 +87,6 @@ export function createFormBuilderController(
         setAttributeSafely('fbms-base-url', state.fbmsBaseUrl);
         setAttributeSafely('fbms-form-fname', state.fbmsFormFname);
 
-        // Handle the union type explicitly
         if (state.showErrorList === false) {
             setAttributeSafely('show-error-list', 'false');
         } else if (state.showErrorList === 'bottom') {
