@@ -23,9 +23,10 @@ export default defineConfig({
     lib: {
       entry: resolve(__dirname, 'src/main.ts'),
       name: 'FormBuilderElement',
-      fileName: 'FormBuilderElement',
-      formats: ['iife'],
+      formats: ['umd', 'es'],
+      fileName: (format) => `FormBuilderElement.${format}.js`
     },
+    outDir: 'dist',
     rollupOptions: {
       external: [
         'react',
