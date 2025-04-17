@@ -5,7 +5,7 @@ import validator from '@rjsf/validator-ajv8';
 import { RJSFValidationError } from '@rjsf/utils';
 import Form, { IChangeEvent } from '@rjsf/core';
 
-// import oidc from '@uportal/open-id-connect';
+import oidc from '@uportal/open-id-connect';
 
 import { NotificationTypes } from '../types/shared';
 import {
@@ -25,7 +25,7 @@ import Notification from '../Notification';
 const FormBuilder = ({
     fbmsBaseUrl,
     fbmsFormFname,
-    // oidcUrl,
+    oidcUrl,
     showErrorList,
 }: FormBuilderProps) => {
     const initialState = {
@@ -184,16 +184,7 @@ const FormBuilder = ({
      */
     const getToken = async () => {
         try {
-            // return await oidc({ userInfoApiUrl: oidcUrl, timeout: 18000 });
-            return {
-                encoded:
-                    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c',
-                decoded: {
-                    sub: '1234567890',
-                    name: 'John Doe',
-                    iat: 1516239022,
-                },
-            };
+            return await oidc({ userInfoApiUrl: oidcUrl, timeout: 18000 });
         } catch (err) {
             console.error(err);
             handleOidcError(err);
